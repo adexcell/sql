@@ -49,16 +49,12 @@ def add_student(student):
             return cur.fetchone()[0]
 
 
-def add_students(course_id, students):
-    for i in students:
-        id_s = add_student(i)
-        with pg.connect(dbname=dbname, user=user) as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                   insert into Student_Course (student_id, course_id) values
-                   (%s, %s);
-                   """, (id_s, course_id))
-
+def add_student(student):
+    with psycopg2.connect(NAME_DB) as conn:
+        with conn.cursor() as curs:
+            curs.execute("""insert into students (name, gpa, birth) values (%s, %s, %s) RETURNING id;""",
+                         (student['name'], student['gpa'], student['birth']))
+            return curs.fetchone()
 
 def get_student(student_id):
     with pg.connect(dbname=dbname, user=user) as conn:
